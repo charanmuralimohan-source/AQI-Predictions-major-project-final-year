@@ -51,7 +51,7 @@ Manages feature processing:
 
 •Forecast dataframe creation
 
-**model_training**
+⚫**model_training**
 Contains the ModelTrainer class:
 
 •Training multiple ML models (LR, DT, RF, XGBoost)
@@ -62,7 +62,7 @@ Contains the ModelTrainer class:
 
 •City-specific model training
 
-**model_evaluation**
+⚫**model_evaluation**
 Provides comprehensive evaluation:
 
 •Regression metrics (RMSE, MAE, R2, MAPE)
@@ -73,7 +73,7 @@ Provides comprehensive evaluation:
 
 •Residual analysis and error distribution
 
-**visualization**
+⚫**visualization**
 Creates all plots and charts:
 
 •AQI distribution histograms
@@ -86,7 +86,7 @@ Creates all plots and charts:
 
 •Risk zone overlays
 
-**mlflow_utils**
+⚫**mlflow_utils**
 Manages experiment tracking:
 
 •MLflow run management
@@ -97,7 +97,7 @@ Manages experiment tracking:
 
 •Experiment comparison
 
-**anomaly_detection**
+⚫**anomaly_detection**
 Detects pollution spikes:
 
 •Rolling statistics anomaly detection
@@ -108,7 +108,7 @@ Detects pollution spikes:
 
 •Pattern analysis and reporting
 
-**model_persistence**
+⚫**model_persistence**
 Handles model artifacts:
 
 •Joblib-based model serialization
@@ -119,7 +119,7 @@ Handles model artifacts:
 
 •Deployment-ready artifact creation
 
-**As Whole**
+⚫**As Whole**
 Orchestrates the entire pipeline:
 
 •End-to-end execution
@@ -130,17 +130,24 @@ Orchestrates the entire pipeline:
 
 •Pipeline coordination
 
-**🔧 Usage Examples**
+⚫**🔧 Usage Examples**
+
 Training Models
+
 from model_training import ModelTrainer
 
 trainer = ModelTrainer()
+
 trainer.train_all_models(X_train, y_train)
+
 metrics = trainer.evaluate_all_models(X_test, y_test)
+
 best_model, best_score = trainer.get_best_model()
 
 City-Specific Analysis
+
 from feature_engineering import prepare_city_specific_data
+
 from anomaly_detection import detect_pollution_spikes_city
 
 # Prepare city data
@@ -149,82 +156,94 @@ city_data = prepare_city_specific_data(train_df, val_df, test_df, "Delhi", featu
 # Detect anomalies
 anomaly_df, summary = detect_pollution_spikes_city(city_test_df, "Delhi")
 
-Visualization
+⚫**Visualization**
 from visualization import AQIPlotter
 
 plotter = AQIPlotter()
+
 plotter.plot_forecast_with_risk_zones(forecast_df, "Delhi", "XGBoost")
+
 plotter.plot_actual_vs_predicted(y_true, y_pred, "XGBoost", "Delhi")
 
-Model Persistence
+⚫**Model Persistence**
 from model_persistence import ModelPersistence
 
 persistence = ModelPersistence()
+
 persistence.save_best_model(model, "xgboost", scaler, features, metrics)
+
 artifacts = persistence.load_model_artifacts("best_model")
 
-**📊 Key Features**
+⚫**📊 Key Features**
 
-Modular Design: Each module has a single responsibility
+➤Modular Design: Each module has a single responsibility
 
-Time-Series Aware: Proper temporal splitting and feature engineering
+➤Time-Series Aware: Proper temporal splitting and feature engineering
 
-Multiple Models: Linear Regression, Decision Tree, Random Forest, XGBoost
+➤Multiple Models: Linear Regression, Decision Tree, Random Forest, XGBoost
 
-Comprehensive Evaluation: Multiple metrics and forecast horizons
+➤Comprehensive Evaluation: Multiple metrics and forecast horizons
 
-Anomaly Detection: Rolling statistics and threshold-based alerts
+➤Anomaly Detection: Rolling statistics and threshold-based alerts
 
-Experiment Tracking: Full MLflow integration
+➤Experiment Tracking: Full MLflow integration
 
-Production Ready: Model serialization and deployment artifacts
+➤Production Ready: Model serialization and deployment artifacts
 
-Rich Visualization: Professional plots with AQI risk categories
+➤Rich Visualization: Professional plots with AQI risk categories
 
-**🔄 Migration from Monolithic**
+⚫**🔄 Migration from Monolithic**
 
 The original model.py (1407 lines) has been split into:
 
-| Module | Purpose | |--------|-------|---------| | data_loader| Data operations | | feature_engineering |Feature processing | | model_training |Model training | | model_evaluation |Evaluation metrics | | visualization |Plotting functions | | mlflow_utils |Experiment tracking | | anomaly_detection | Anomaly detection | | model_persistence |Model I/O |
+| Module | Purpose | |--------|-------|---------|
+| data_loader| Data operations | 
+| feature_engineering |Feature processing |
+| model_training |Model training | 
+| model_evaluation |Evaluation metrics |
+| visualization |Plotting functions |
+| mlflow_utils |Experiment tracking | 
+| anomaly_detection | Anomaly detection |
+| model_persistence |Model I/O |
 
-**🎯 Benefits of Modular Architecture**
+⚫**🎯 Benefits of Modular Architecture**
 
-Maintainability: Easier to modify individual components
+➤Maintainability: Easier to modify individual components
 
-Testability: Each module can be tested independently
+➤Testability: Each module can be tested independently
 
-Reusability: Modules can be imported and used separately
+➤Reusability: Modules can be imported and used separately
 
-Scalability: New features can be added without affecting others
+➤Scalability: New features can be added without affecting others
 
-Collaboration: Multiple developers can work on different modules
+➤Collaboration: Multiple developers can work on different modules
 
-Debugging: Issues can be isolated to specific modules
+➤Debugging: Issues can be isolated to specific modules
 
-**📈 Performance**
+⚫**📈 Performance**
 
-The modular system maintains the same performance as the original while providing:
+➤The modular system maintains the same performance as the original while providing:
 
-Better code organization
+➤Better code organization
 
-Improved error handling
+➤Improved error handling
 
-Enhanced logging and monitoring
+➤Enhanced logging and monitoring
 
-Easier deployment and maintenance
+➤Easier deployment and maintenance
 
-**🤝 Contributing**
+⚫**🤝 Contributing**
 When adding new features:
 
-Identify which module should contain the functionality
+➤Identify which module should contain the functionality
 
-Follow the existing code patterns and naming conventions
+➤Follow the existing code patterns and naming conventions
 
-Add appropriate error handling and logging
+➤Add appropriate error handling and logging
 
-Update docstrings and comments
+➤Update docstrings and comments
 
-Test the changes thoroughly
+➤Test the changes thoroughly
 
-**📝 License**
+⚫**📝 License**
 This project is part of the AQI forecasting system for air quality prediction and analysis.
