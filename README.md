@@ -29,80 +29,108 @@ Contains all configuration constants:
 
 •Pollution thresholds
 
-data_loader
+**data_loader**
 Handles data operations:
 
 •Loading preprocessed datasets
+
 •Creating time-series train/val/test splits
+
 •Basic EDA and statistical analysis
+
 •Feature metadata management
 
-feature_engineering.py
+**feature_engineering.py**
 Manages feature processing:
 
 •Cyclical encoding for time features
+
 •Feature scaling with StandardScaler
+
 •City-specific data preparation
+
 •Forecast dataframe creation
 
-model_training
+**model_training**
 Contains the ModelTrainer class:
 
 •Training multiple ML models (LR, DT, RF, XGBoost)
+
 •Model evaluation and comparison
+
 •Best model selection
+
 •City-specific model training
 
-model_evaluation
+**model_evaluation**
 Provides comprehensive evaluation:
 
 •Regression metrics (RMSE, MAE, R2, MAPE)
+
 •Forecast horizon evaluation
+
 •AQI category accuracy
+
 •Residual analysis and error distribution
 
-visualization
+**visualization**
 Creates all plots and charts:
 
 •AQI distribution histograms
+
 •Correlation heatmaps
+
 •Feature importance plots
+
 •Actual vs predicted comparisons
+
 •Risk zone overlays
 
-mlflow_utils
+**mlflow_utils**
 Manages experiment tracking:
 
 •MLflow run management
+
 •Model logging and registration
+
 •Artifact tracking
+
 •Experiment comparison
 
-anomaly_detection
+**anomaly_detection**
 Detects pollution spikes:
 
 •Rolling statistics anomaly detection
+
 •Pollutant threshold monitoring
+
 •Static AQI threshold alerts
+
 •Pattern analysis and reporting
 
-model_persistence
+**model_persistence**
 Handles model artifacts:
 
 •Joblib-based model serialization
+
 •Scaler and feature metadata saving
+
 •Model validation and loading
+
 •Deployment-ready artifact creation
 
-As Whole
+**As Whole**
 Orchestrates the entire pipeline:
 
 •End-to-end execution
+
 •Error handling and logging
+
 •User interaction
+
 •Pipeline coordination
 
-🔧 Usage Examples
+**🔧 Usage Examples**
 Training Models
 from model_training import ModelTrainer
 
@@ -135,46 +163,68 @@ persistence = ModelPersistence()
 persistence.save_best_model(model, "xgboost", scaler, features, metrics)
 artifacts = persistence.load_model_artifacts("best_model")
 
-📊 Key Features
+**📊 Key Features**
+
 Modular Design: Each module has a single responsibility
+
 Time-Series Aware: Proper temporal splitting and feature engineering
+
 Multiple Models: Linear Regression, Decision Tree, Random Forest, XGBoost
+
 Comprehensive Evaluation: Multiple metrics and forecast horizons
+
 Anomaly Detection: Rolling statistics and threshold-based alerts
+
 Experiment Tracking: Full MLflow integration
+
 Production Ready: Model serialization and deployment artifacts
+
 Rich Visualization: Professional plots with AQI risk categories
-🔄 Migration from Monolithic
+
+**🔄 Migration from Monolithic**
+
 The original model.py (1407 lines) has been split into:
 
 | Module | Purpose | |--------|-------|---------| | data_loader| Data operations | | feature_engineering |Feature processing | | model_training |Model training | | model_evaluation |Evaluation metrics | | visualization |Plotting functions | | mlflow_utils |Experiment tracking | | anomaly_detection | Anomaly detection | | model_persistence |Model I/O |
 
-Total: ~2400 lines across 10 modules
+**🎯 Benefits of Modular Architecture**
 
-🎯 Benefits of Modular Architecture
 Maintainability: Easier to modify individual components
+
 Testability: Each module can be tested independently
+
 Reusability: Modules can be imported and used separately
+
 Scalability: New features can be added without affecting others
+
 Collaboration: Multiple developers can work on different modules
+
 Debugging: Issues can be isolated to specific modules
 
-📈 Performance
+**📈 Performance**
+
 The modular system maintains the same performance as the original while providing:
 
 Better code organization
+
 Improved error handling
+
 Enhanced logging and monitoring
+
 Easier deployment and maintenance
 
-🤝 Contributing
+**🤝 Contributing**
 When adding new features:
 
 Identify which module should contain the functionality
+
 Follow the existing code patterns and naming conventions
+
 Add appropriate error handling and logging
+
 Update docstrings and comments
+
 Test the changes thoroughly
 
-📝 License
+**📝 License**
 This project is part of the AQI forecasting system for air quality prediction and analysis.
