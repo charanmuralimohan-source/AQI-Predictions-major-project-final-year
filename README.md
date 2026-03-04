@@ -20,9 +20,13 @@ config.py
 Contains all configuration constants:
 
 •MLflow settings
+
 •Model hyperparameters
+
 •Data paths and directories
+
 •AQI risk categories
+
 •Pollution thresholds
 
 data_loader
