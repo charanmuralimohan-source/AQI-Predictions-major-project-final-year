@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AQI Forecast System</title>
+
+    <!-- Leaflet CSS -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet/dist/leaflet.css"
+/>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!------->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 750px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.12);
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 12px;
+            display: block;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            margin-top: 18px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        table {
+            margin-top: 25px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        .note {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        #chatbot-icon {
+            position: fixed;
+            bottom: 22px;
+            right: 22px;
+            width: 56px;
+            height: 56px;
+            cursor: pointer;
+            z-index: 10000;
+            transition: transform 0.2s ease;
+        }
+
+#chatbot-icon:hover {
+    transform: scale(1.1);
+}
+
+#chatbot-container {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 380px;
+    height: 520px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.35);
+    display: none;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>🌫️ Real-Time AQI Prediction System</h2>
+
+    <div id="map" style="height: 450px; margin-bottom: 20px;"></div>
+
+
+    <!-- City Selection -->
+    <label>Select City</label>
+    <select id="city">
+        <option>Bangalore</option>
+        <option>Delhi</option>
+        <option>Mumbai</option>
+        <option>Chennai</option>
+        <option>Hyderabad</option>
+        <option>Kolkata</option>
+        <option>Pune</option>
+        <option>Ahmedabad</option>
+        <option>Jaipur</option>
+        <option>Lucknow</option>
+        <option>Patna</option>
+        <option>Nagpur</option>
+        <option>Indore</option>
+        <option>Surat</option>
+        <option>Varanasi</option>
+        <option>Agra</option>
+        <option>Meerut</option>
+        <option>Nashik</option>
+        <option>Vadodara</option>
+        <option>Bhopal</option>
+        <option>Srinagar</option>
+        <option>Thane</option>
+        <option>Ludhiana</option>
+        <option>Rajkot</option>
+    </select>
+
+    <!-- Date & Time -->
+    <label>Start Date & Time</label>
+    <input type="datetime-local" id="startDate">
+
+    <!-- Forecast Duration -->
+    <label>Forecast Hours Ahead</label>
+    <input type="number" id="hoursAhead" value="24" min="1" max="72">
+
+    <button onclick="predictAQI()">Predict AQI</button>
+
+    <p class="note">
+        ℹ️ Pollution and weather features (PM2.5, PM10, NO₂, Temperature, Humidity, etc.)
+        are automatically extracted from historical city data for real-time simulation.
+    </p>
+
+    <!-- Result Table -->
+    <table id="resultTable" style="display:none;">
+        <thead>
+<tr>
+    <th>Date & Time</th>
+    <th>City</th>
+    <th>AQI</th>
+    <th>PM2.5</th>
+    <th>PM10</th>
+    <th>NO₂</th>
+    <th>Temperature (°C)</th>
+    <th>Humidity (%)</th>
+    <th>AQI Category</th>
+</tr>
+</thead>
+
+        <tbody></tbody>
+    </table>
+    <br>
+    <canvas id="aqiChart" height="110" style="display:none;"></canvas>
+
+
+</div>
+
+<!-- Chatbot Popup -->
+<div id="chatbot-container">
+    <div id="chatbot-header">
+        🤖 AQI Assistant
+        <span onclick="closeChatbot()">✖</span>
+    </div>
+
+    <iframe
+    id="chatbot-iframe"
+    src="http://10.79.16.142:8501"
+    style="width:100%; height:100%; border:none; border-radius:14px;"
+    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+    >
+    </iframe>
+
+</div>
+
+
+<script>
+
+    
+const map = L.map('map').setView([22.5937, 78.9629], 5);
+const cityLocations = {
+    "Agra": [27.1767, 78.0081],
+    "Ahmedabad": [23.0225, 72.5714],
+    "Bangalore": [12.9716, 77.5946],
+    "Bhopal": [23.2599, 77.4126],
+    "Chennai": [13.0827, 80.2707],
+    "Delhi": [28.6139, 77.2090],
+    "Hyderabad": [17.3850, 78.4867],
+    "Indore": [22.7196, 75.8577],
+    "Jaipur": [26.9124, 75.7873],
+    "Kolkata": [22.5726, 88.3639],
+    "Lucknow": [26.8467, 80.9462],
+    "Ludhiana": [30.9009, 75.8573],
+    "Meerut": [28.9845, 77.7064],
+    "Mumbai": [19.0760, 72.8777],
+    "Nagpur": [21.1458, 79.0882],
+    "Nashik": [19.9975, 73.7898],
+    "Patna": [25.5941, 85.1376],
+    "Pune": [18.5204, 73.8567],
+    "Rajkot": [22.3039, 70.8022],
+    "Srinagar": [34.0837, 74.7973],
+    "Surat": [21.1702, 72.8311],
+    "Thane": [19.2183, 72.9781],
+    "Vadodara": [22.3072, 73.1812],
+    "Varanasi": [25.3176, 82.9739]
+};
+
+for (const city in cityLocations) {
+    L.marker(cityLocations[city])
+        .addTo(map)
+        .bindPopup(city)
+        .on('click', () => {
+            document.getElementById("city").value = city;
+        });
+}
+
+
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+
+function getAQICategory(aqi) {
+    if (aqi <= 50) return "Good";
+    if (aqi <= 100) return "Satisfactory";
+    if (aqi <= 200) return "Moderate";
+    if (aqi <= 300) return "Poor";
+    if (aqi <= 400) return "Very Poor";
+    return "Severe";
+}
+
+
+
+
+
+let chartInstance = null;
+
+const aqiBandsPlugin = {
+    id: 'aqiBands',
+    beforeDraw(chart) {
+
+        const { ctx, chartArea, scales } = chart;
+        if (!chartArea) return;
+
+        const yScale = scales.y;
+
+        const bands = [
+            { from: 0, to: 50, color: "rgba(0,200,0,0.12)" },
+            { from: 51, to: 100, color: "rgba(255,215,0,0.15)" },
+            { from: 101, to: 200, color: "rgba(255,140,0,0.15)" },
+            { from: 201, to: yScale.max, color: "rgba(220,0,0,0.15)" }
+        ];
+
+        ctx.save();
+
+        bands.forEach(band => {
+            const yTop = yScale.getPixelForValue(band.to);
+            const yBottom = yScale.getPixelForValue(band.from);
+
+            ctx.fillStyle = band.color;
+            ctx.fillRect(
+                chartArea.left,
+                yTop,
+                chartArea.right - chartArea.left,
+                yBottom - yTop
+            );
+        });
+
+        ctx.restore();
+    }
+};
+
+Chart.register(aqiBandsPlugin);
+
+
+function predictAQI() {
+    const payload = {
+        city: document.getElementById("city").value,
+        start_date: document.getElementById("startDate").value.replace("T", " "),
+        hours_ahead: parseInt(document.getElementById("hoursAhead").value)
+    };
+    const startDateValue = document.getElementById("startDate").value;
+
+    if (!startDateValue) {
+        alert("Please select start date & time");
+        return;
+    }
+
+
+
+    fetch("http://127.0.0.1:8000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+
+    const table = document.getElementById("resultTable");
+    const tbody = table.querySelector("tbody");
+    tbody.innerHTML = "";
+
+    data.predictions.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${row.datetime}</td>
+            <td>${row.city}</td>
+            <td>${row.predicted_aqi}</td>
+            <td>${row.pm2_5}</td>
+            <td>${row.pm10}</td>
+            <td>${row.no2}</td>
+            <td>${row.temperature}</td>
+            <td>${row.humidity}</td>
+            <td>${getAQICategory(row.predicted_aqi)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    table.style.display = "table";
+
+    // Render chart AFTER table completes
+    renderChart(data.city, data.predictions, data.hours);
+})
+
+    .catch(err => alert("Error connecting to server"));
+}
+
+function renderChart(city, predictions, hours) {
+
+    const labels = predictions.map(p => p.datetime);
+    const aqiValues = predictions.map(p => p.predicted_aqi);
+    const spikePoints = predictions.map(p => p.spike ? p.predicted_aqi : null);
+
+
+    const canvas = document.getElementById("aqiChart");
+    canvas.style.display = "block";
+
+    const ctx = canvas.getContext("2d");
+
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Predicted AQI",
+                data: aqiValues,
+                borderWidth: 2,
+                tension: 0.35,
+                pointRadius: 3
+            },
+            {
+                label: "Pollution Spike",
+                data: spikePoints,
+                showLine: false,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                borderWidth: 2
+            }
+
+        ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: `AQI Forecast for ${city} (Next ${hours} Hours)`
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: Math.max(...aqiValues) + 50,
+                    title: {
+                        display: true,
+                        text: "AQI"
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: "Date & Time"
+                    }
+                }
+            }
+        }
+    });
+
+    // Auto-scroll to chart
+    canvas.scrollIntoView({ behavior: "smooth" });
+}
+
+
+function openChatbot() {
+    document.getElementById("chatbot-container").style.display = "flex";
+}
+
+function closeChatbot() {
+    document.getElementById("chatbot-container").style.display = "none";
+}
+
+
+let spikeChart = null;
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    
+});
+
+</script>
+
+<!-- Chatbot Floating Icon -->
+<img
+    src="chatbot_img1.png"
+    id="chatbot-icon"
+    title="AQI Assistant"
+    onclick="openChatbot()"
+/>
+
+</body>
+</html>
